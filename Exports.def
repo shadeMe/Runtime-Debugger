@@ -1,0 +1,4 @@
+LIBRARY	"RuntimeDebugger"
+EXPORTS
+OBSEPlugin_Query
+OBSEPlugin_Load

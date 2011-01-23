@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Debugger", "UIComponents.vcproj", "{EEB8240B-20BF-4D17-96DB-9822266EF98B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEB8240B-20BF-4D17-96DB-9822266EF98B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EEB8240B-20BF-4D17-96DB-9822266EF98B}.Debug|Win32.Build.0 = Debug|Win32
+		{EEB8240B-20BF-4D17-96DB-9822266EF98B}.Release|Win32.ActiveCfg = Release|Win32
+		{EEB8240B-20BF-4D17-96DB-9822266EF98B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
