@@ -48,7 +48,8 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				ForcedUsingFiles="Includes.h"
+				ForcedIncludeFiles="[Common]\Prefix.h"
+				ForcedUsingFiles=""
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -119,11 +120,16 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;&quot;$(SolutionDir)\..&quot;;&quot;$(SolutionDir)\..\obse\obse&quot;;&quot;$(SolutionDir)\..\obse\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG"
+				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="0"
-				ForcedUsingFiles="Includes.h"
+				ForcedIncludeFiles="[Common]\Prefix.h"
+				ForcedUsingFiles=""
+				ShowIncludes="false"
+				UseFullPaths="true"
+				OmitDefaultLibName="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -202,20 +208,84 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\[Common]\Includes.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Resource.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Wrappers"
+			>
+			<File
+				RelativePath="..\..\[Common]\NativeWrapper.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Utilities"
+			>
+			<File
+				RelativePath="..\..\[Common]\MiscUtilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\[Common]\MiscUtilities.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Common"
+			>
+			<File
+				RelativePath="..\..\[Common]\DebuggerMessagingInterface.h"
 				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Components"
 			>
+			<File
+				RelativePath=".\ByteCodeParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ByteCodeParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NumberedRichTextBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NumberedRichTextBox.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptDebuggerRTB.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptDebuggerRTB.h"
+				>
+			</File>
 		</Filter>
 		<File
-			RelativePath=".\Debugger.cpp"
+			RelativePath=".\DebuggerBase.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\Debugger.h"
+			RelativePath=".\DebuggerBase.h"
+			>
+		</File>
+		<File
+			RelativePath=".\DebuggerContext.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\DebuggerContext.h"
 			>
 		</File>
 		<File
@@ -227,7 +297,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Includes.h"
+			RelativePath="..\..\[Common]\Prefix.h"
 			>
 		</File>
 	</Files>

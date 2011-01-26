@@ -46,9 +46,11 @@ namespace Debugger {
 	private: System::Windows::Forms::ToolStrip^  DebuggerToolbar;
 	private: System::Windows::Forms::ToolStripButton^  ToolbarResumeDebugger;
 	private: System::Windows::Forms::ToolStripButton^  ToolbarExecuteLine;
-	private: System::Windows::Forms::TextBox^  Console;
+
 	private: System::Windows::Forms::ListView^  CallStack;
 	private: System::Windows::Forms::ColumnHeader^  CallStackLabel;
+	private: System::Windows::Forms::ListBox^  Console;
+
 
 
 
@@ -77,19 +79,19 @@ namespace Debugger {
 		void InitializeComponent(void)
 		{
 			this->MainSplitter = (gcnew System::Windows::Forms::SplitContainer());
-			this->CallStackSplitter = (gcnew System::Windows::Forms::SplitContainer());
 			this->DebuggerToolbar = (gcnew System::Windows::Forms::ToolStrip());
-			this->ToolbarResumeDebugger = (gcnew System::Windows::Forms::ToolStripButton());
 			this->ToolbarExecuteLine = (gcnew System::Windows::Forms::ToolStripButton());
-			this->Console = (gcnew System::Windows::Forms::TextBox());
+			this->ToolbarResumeDebugger = (gcnew System::Windows::Forms::ToolStripButton());
+			this->CallStackSplitter = (gcnew System::Windows::Forms::SplitContainer());
 			this->CallStack = (gcnew System::Windows::Forms::ListView());
 			this->CallStackLabel = (gcnew System::Windows::Forms::ColumnHeader());
+			this->Console = (gcnew System::Windows::Forms::ListBox());
 			this->MainSplitter->Panel1->SuspendLayout();
 			this->MainSplitter->Panel2->SuspendLayout();
 			this->MainSplitter->SuspendLayout();
+			this->DebuggerToolbar->SuspendLayout();
 			this->CallStackSplitter->Panel1->SuspendLayout();
 			this->CallStackSplitter->SuspendLayout();
-			this->DebuggerToolbar->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// MainSplitter
@@ -111,19 +113,6 @@ namespace Debugger {
 			this->MainSplitter->SplitterDistance = 408;
 			this->MainSplitter->TabIndex = 0;
 			// 
-			// CallStackSplitter
-			// 
-			this->CallStackSplitter->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->CallStackSplitter->Location = System::Drawing::Point(0, 0);
-			this->CallStackSplitter->Name = L"CallStackSplitter";
-			// 
-			// CallStackSplitter.Panel1
-			// 
-			this->CallStackSplitter->Panel1->Controls->Add(this->CallStack);
-			this->CallStackSplitter->Size = System::Drawing::Size(995, 408);
-			this->CallStackSplitter->SplitterDistance = 331;
-			this->CallStackSplitter->TabIndex = 0;
-			// 
 			// DebuggerToolbar
 			// 
 			this->DebuggerToolbar->AllowItemReorder = true;
@@ -139,6 +128,13 @@ namespace Debugger {
 			this->DebuggerToolbar->TabIndex = 1;
 			this->DebuggerToolbar->Text = L"Toolbar";
 			// 
+			// ToolbarExecuteLine
+			// 
+			this->ToolbarExecuteLine->ImageTransparentColor = System::Drawing::Color::Magenta;
+			this->ToolbarExecuteLine->Name = L"ToolbarExecuteLine";
+			this->ToolbarExecuteLine->Size = System::Drawing::Size(76, 22);
+			this->ToolbarExecuteLine->Text = L"Execute Line";
+			// 
 			// ToolbarResumeDebugger
 			// 
 			this->ToolbarResumeDebugger->ImageTransparentColor = System::Drawing::Color::Magenta;
@@ -147,27 +143,18 @@ namespace Debugger {
 			this->ToolbarResumeDebugger->Text = L"Resume Debugger";
 			this->ToolbarResumeDebugger->ToolTipText = L"Resume Debugger";
 			// 
-			// ToolbarExecuteLine
+			// CallStackSplitter
 			// 
-			this->ToolbarExecuteLine->ImageTransparentColor = System::Drawing::Color::Magenta;
-			this->ToolbarExecuteLine->Name = L"ToolbarExecuteLine";
-			this->ToolbarExecuteLine->Size = System::Drawing::Size(76, 22);
-			this->ToolbarExecuteLine->Text = L"Execute Line";
+			this->CallStackSplitter->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->CallStackSplitter->Location = System::Drawing::Point(0, 0);
+			this->CallStackSplitter->Name = L"CallStackSplitter";
 			// 
-			// Console
+			// CallStackSplitter.Panel1
 			// 
-			this->Console->Cursor = System::Windows::Forms::Cursors::Arrow;
-			this->Console->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->Console->Font = (gcnew System::Drawing::Font(L"Consolas", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
-				static_cast<System::Byte>(0)));
-			this->Console->Location = System::Drawing::Point(0, 0);
-			this->Console->MaxLength = 65537;
-			this->Console->Multiline = true;
-			this->Console->Name = L"Console";
-			this->Console->ReadOnly = true;
-			this->Console->Size = System::Drawing::Size(995, 120);
-			this->Console->TabIndex = 0;
-			this->Console->TabStop = false;
+			this->CallStackSplitter->Panel1->Controls->Add(this->CallStack);
+			this->CallStackSplitter->Size = System::Drawing::Size(995, 408);
+			this->CallStackSplitter->SplitterDistance = 331;
+			this->CallStackSplitter->TabIndex = 0;
 			// 
 			// CallStack
 			// 
@@ -191,6 +178,18 @@ namespace Debugger {
 			this->CallStackLabel->Text = L"Call Stack";
 			this->CallStackLabel->Width = 200;
 			// 
+			// Console
+			// 
+			this->Console->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->Console->Font = (gcnew System::Drawing::Font(L"Consolas", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->Console->FormattingEnabled = true;
+			this->Console->ItemHeight = 19;
+			this->Console->Location = System::Drawing::Point(0, 0);
+			this->Console->Name = L"Console";
+			this->Console->Size = System::Drawing::Size(995, 118);
+			this->Console->TabIndex = 0;
+			// 
 			// Interface
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -205,12 +204,11 @@ namespace Debugger {
 			this->MainSplitter->Panel1->ResumeLayout(false);
 			this->MainSplitter->Panel1->PerformLayout();
 			this->MainSplitter->Panel2->ResumeLayout(false);
-			this->MainSplitter->Panel2->PerformLayout();
 			this->MainSplitter->ResumeLayout(false);
-			this->CallStackSplitter->Panel1->ResumeLayout(false);
-			this->CallStackSplitter->ResumeLayout(false);
 			this->DebuggerToolbar->ResumeLayout(false);
 			this->DebuggerToolbar->PerformLayout();
+			this->CallStackSplitter->Panel1->ResumeLayout(false);
+			this->CallStackSplitter->ResumeLayout(false);
 			this->ResumeLayout(false);
 
 		}

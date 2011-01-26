@@ -50,7 +50,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
-				ForcedIncludeFiles="obse_common/obse_prefix.h"
+				ForcedIncludeFiles="obse_common/obse_prefix.h;UtilityBox.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -127,7 +127,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
-				ForcedIncludeFiles="obse_common/obse_prefix.h"
+				ForcedIncludeFiles="obse_common/obse_prefix.h;UtilityBox.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -370,6 +370,50 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Utilities"
+			>
+			<File
+				RelativePath="..\[Libraries]\MemoryHandler\MemoryHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\[Libraries]\MemoryHandler\MemoryHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\[Libraries]\SME_Prefix.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UtilityBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UtilityBox.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Common"
+			>
+			<File
+				RelativePath=".\[Common]\DebuggerMessagingInterface.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Wrappers"
+			>
+			<File
+				RelativePath=".\[Common]\CLIWrapper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\[Common]\CLIWrapper.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Main.cpp"
 			>
@@ -380,6 +424,14 @@
 		</File>
 		<File
 			RelativePath=".\RUDEInternals.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ScriptRunnerWrapper.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ScriptRunnerWrapper.h"
 			>
 		</File>
 	</Files>

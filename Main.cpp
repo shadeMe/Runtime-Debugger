@@ -1,3 +1,7 @@
+#include "RUDEInternals.h"
+#include "ScriptRunnerWrapper.h"
+#include "[Common]\CLIWrapper.h"
+
 IDebugLog					gLog("RuntimeDebugger.log");
 
 PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
@@ -15,17 +19,16 @@ bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 	{
 		if(obse->obseVersion < OBSE_VERSION_INTEGER)
 		{
-			_ERROR("OBSE version too old (got %08X expected at least %08X)", obse->obseVersion, OBSE_VERSION_INTEGER);
+			DebugPrint("OBSE version too old (got %08X expected at least %08X)", obse->obseVersion, OBSE_VERSION_INTEGER);
 			return false;
 		}
 
 		if(obse->oblivionVersion != OBLIVION_VERSION)
 		{
-			_ERROR("incorrect Oblivion version (got %08X need %08X)", obse->oblivionVersion, OBLIVION_VERSION);
+			DebugPrint("incorrect Oblivion version (got %08X need %08X)", obse->oblivionVersion, OBLIVION_VERSION);
 			return false;
 		}
 	}
-	else
 
 	return true;
 }
@@ -33,13 +36,24 @@ bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 bool OBSEPlugin_Load(const OBSEInterface * obse)
 {
 	g_pluginHandle = obse->GetPluginHandle();
-	_MESSAGE("RuntimeDebugger Initializing...");
+	DebugPrint("RuntimeDebugger Initializing...");
 	gLog.Indent();
 
-	//
+	if (!CLIWrapper::Import(obse))
+		return false;
+
+	
+	obse->SetOpcodeBase(0x2900);		// ### request a proper range
+	obse->RegisterCommand(&kCommandInfo_DebugBreak);
+
+	if (!obse->isEditor)
+	{
+		PatchScriptTextLoad();
+		PatchScriptRunnerMethods();
+	}
 
 	gLog.Outdent();
-	_MESSAGE("RuntimeDebugger Initialized!\n\n");
+	DebugPrint("RuntimeDebugger Initialized!\n\n");
 	return true;
 }
 
