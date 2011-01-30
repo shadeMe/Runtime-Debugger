@@ -6,7 +6,6 @@ IDebugLog					gLog("RuntimeDebugger.log");
 
 PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
 
-
 extern "C" {
 
 bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
@@ -43,12 +42,12 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 		return false;
 
 	
-	obse->SetOpcodeBase(0x2900);		// ### request a proper range
+	obse->SetOpcodeBase(0x2900);						// ### request a proper range
 	obse->RegisterCommand(&kCommandInfo_DebugBreak);
 
 	if (!obse->isEditor)
 	{
-		PatchScriptTextLoad();
+		PatchGameInitialization();
 		PatchScriptRunnerMethods();
 	}
 

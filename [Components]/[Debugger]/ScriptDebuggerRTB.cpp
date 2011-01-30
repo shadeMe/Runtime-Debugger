@@ -1,18 +1,20 @@
 #include "ScriptDebuggerRTB.h"
+#include "[Common]\NativeWrapper.h"
 
 ScriptDebuggerRTB::ScriptDebuggerRTB(UInt32 LinesToScroll, Font^ Font, Color ForegroundColor, Color BackgroundColor, Color HighlightColor, Color LineHighlightColor, Color BreakpointColor) : OffsetRichTextBox(LinesToScroll, Font, ForegroundColor, BackgroundColor, HighlightColor)
 {
 	this->LineHighlightColor = LineHighlightColor;
 	this->BreakpointColor = BreakpointColor;
 
-	CurrentLine = 0;
+	CurrentOffset = 0;
 	Breakpoints = gcnew List<UInt32>();
+	OffsetFlag = true;
 }
 
 void ScriptDebuggerRTB::LineField_MouseDown(Object^ Sender, MouseEventArgs^ E)
 {
 	TextField->Focus();
-	int LineNo = 0, SelStart = LineField->SelectionStart; 
+	int BaseOffset = 0, SelStart = LineField->SelectionStart; 
 
 	try 
 	{ 
@@ -22,18 +24,13 @@ void ScriptDebuggerRTB::LineField_MouseDown(Object^ Sender, MouseEventArgs^ E)
 			if (OffsetFlag)
 			{
 				UInt16 Offset = int::Parse(LineField->Lines[LineField->GetLineFromCharIndex(SelStart)], System::Globalization::NumberStyles::AllowHexSpecifier);
-				LineNo = GetIndexOfOffset(Offset);
-			}
-			else
-			{
-				String^ Selection = LineField->Lines[LineField->GetLineFromCharIndex(SelStart)]->Replace(" ", "");;
-				LineNo = int::Parse(Selection) - 1;
+				BaseOffset = Offset;
 			}
 		}
 		else
 			return;
 
-		ToggleBreakPoint(LineNo);
+		ToggleBreakPoint(BaseOffset);
 	}
 	catch (...)
 	{
@@ -43,14 +40,28 @@ void ScriptDebuggerRTB::LineField_MouseDown(Object^ Sender, MouseEventArgs^ E)
 
 void ScriptDebuggerRTB::UpdateLineHighlights(void)
 {
-	TextField->SelectAll();
-	TextField->BackColor = Color::White;
-	TextField->SelectionLength = 0;	
+	try
+	{
+		NativeWrapper::LockWindowUpdate(TextField->Handle);
+		UInt32 CaretPos = TextField->SelectionStart;
 
-	for each (UInt32 Itr in Breakpoints)
-		HighlightLineHandler(Itr, BreakpointColor);
+		TextField->SelectAll();
+		TextField->SelectionBackColor = TextField->BackColor;
+		TextField->SelectionLength = 0;	
 
-	HighlightLineHandler(CurrentLine, LineHighlightColor);
+		for each (UInt32 Itr in Breakpoints)
+			HighlightLineHandler(Itr, BreakpointColor);
+
+		if (GetLineFromOffset(CurrentOffset) != -1)
+			HighlightLineHandler(GetLineFromOffset(CurrentOffset), LineHighlightColor);
+
+		TextField->SelectionStart = CaretPos;
+		TextField->SelectionLength = 0;	
+	}
+	finally
+	{
+		NativeWrapper::LockWindowUpdate(IntPtr::Zero);
+	}
 }
 
 void ScriptDebuggerRTB::HighlightLineHandler(int Line, Color% LineColor)
@@ -58,7 +69,9 @@ void ScriptDebuggerRTB::HighlightLineHandler(int Line, Color% LineColor)
 	UInt32 CaretPos = TextField->SelectionStart;
 
 	int SelStart = TextField->GetFirstCharIndexFromLine(Line), SelEnd = TextField->GetFirstCharIndexFromLine(Line + 1);
-	if (SelEnd == -1)
+	if (SelStart == -1)
+		return;
+	else if (SelEnd == -1)
 		SelEnd = TextField->Text->Length - 1;
 
 	TextField->SelectionStart = SelStart;
@@ -68,26 +81,65 @@ void ScriptDebuggerRTB::HighlightLineHandler(int Line, Color% LineColor)
 	TextField->SelectionStart = CaretPos;
 }
 
-void ScriptDebuggerRTB::ToggleBreakPoint(int Line)
+void ScriptDebuggerRTB::ToggleBreakPoint(UInt32 Offset)
 {
-	if (GetIsLineBreakPoint(Line))
-		Breakpoints->Remove(Line);
-	else
-		Breakpoints->Add(Line);
+	int Line = GetLineFromOffset(Offset);
+	if (Line != -1)
+	{
+		if (GetIsOffsetBreakPoint(Offset))
+			Breakpoints->Remove(Line);
+		else
+			Breakpoints->Add(Line);
 
-	UpdateLineHighlights();
+		UpdateLineHighlights();
+	}
 }
 
-bool ScriptDebuggerRTB::GetIsLineBreakPoint(int Line)
+bool ScriptDebuggerRTB::GetIsOffsetBreakPoint(UInt32 Offset)
 {
 	bool Result = false;
-	for each (UInt32 Itr in Breakpoints)
+	int Line = GetLineFromOffset(Offset);
+	if (Line != -1)
 	{
-		if (Itr == Line)
+		for each (UInt32 Itr in Breakpoints)
 		{
-			Result = true;
-			break;
+			if (Itr == Line)
+			{
+				Result = true;
+				break;
+			}
 		}
 	}
 	return Result;
+}
+
+int ScriptDebuggerRTB::GetLineFromOffset(UInt32 Offset)
+{
+	int Result = GetIndexOfOffset(Offset);
+	if (Result == -1)
+	{
+		while (Offset-- && Result == -1)
+		{
+			Result = GetIndexOfOffset(Offset);
+		}
+	}
+	return Result;
+}
+
+void ScriptDebuggerRTB::HighlightNewOffset(UInt32 Offset)
+{
+	CurrentOffset = Offset;
+	UpdateLineHighlights();
+
+	int Line = GetLineFromOffset(Offset);
+	if (Line != -1)
+	{
+		int CaretPos = TextField->GetFirstCharIndexFromLine(Line);
+		if (CaretPos != -1)
+		{
+			TextField->SelectionStart = CaretPos;
+			TextField->SelectionLength = 0;
+			TextField->ScrollToCaret();
+		}
+	}
 }

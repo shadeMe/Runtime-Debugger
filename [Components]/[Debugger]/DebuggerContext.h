@@ -27,12 +27,12 @@ public ref class DebuggerContext
 
 	ref class ContextState
 	{
-		UInt8								State;
+		DebuggerState						State;
 	public:
 		ContextState() : State(kDebuggerState_Invalid) {}
 
-		UInt8								Get() { return State; }
-		void								Set(UInt8 New) { State = New; }
+		DebuggerState						Get() { return State; }
+		void								Set(UInt8 New) { State = (DebuggerState)New; }
 	};
 
 	ContextState^							State;
@@ -42,10 +42,10 @@ public ref class DebuggerContext
 	void									ToolbarShowLocals_Click(Object^ Sender, EventArgs^ E);
 	void									ToolbarShowGlobals_Click(Object^ Sender, EventArgs^ E);
 
-	void									ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, UInt32 GlobalFormID);
+	void									ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, ListViewGroup^ GlobalFormGroup);
 
 	void									UpdateAutos();
-	void									UpdateCurrentLine(int Line) { return TextViewer->HighlightNewLine(Line); }
+	void									UpdateCurrentOffset(UInt32 Offset) { return TextViewer->HighlightNewOffset(Offset); }
 public:
 	DebuggerContext(Script* WorkingScript, ScriptEventList* WorkingEventList, StandardErrorOutput^ ErrorOutput, UInt32 CurrentLine, UInt16 CurrentOffset);
 
@@ -53,7 +53,7 @@ public:
 	String^									DescribeWorkingScript();
 
 	void									UpdateContext(UInt32 CurrentLine, UInt16 CurrentOffset);
-	bool									GetIsLineBreakPoint(int Line) { return TextViewer->GetIsLineBreakPoint(Line); }
+	bool									GetIsOffsetBreakPoint(UInt32 Offset) { return TextViewer->GetIsOffsetBreakPoint(Offset); }
 
 	UInt32									GetCurrentLine() { return CurrentLine; }
 	UInt16									GetCurrentOffset() { return CurrentOffset; }

@@ -15,14 +15,12 @@ MemHdlr						kScriptRunnerReferenceEvaluationFailed		(0x00517571, ScriptRunnerRe
 MemHdlr						kScriptRunnerEncounteredReturnCommand		(0x00517520, ScriptRunnerEncounteredReturnCommandHook, 0, 0);	
 MemHdlr						kScriptRunnerBlockHandlerCalled				(0x00516ADA, ScriptRunnerBlockHandlerCalledHook, 0, 0);
 MemHdlr						kScriptRunnerCommandHandlerCalled			(0x005172AD, ScriptRunnerCommandHandlerCalledHook, 0, 0);
+MemHdlr						kScriptRunnerCommandHandlerExecuted			(0x005172C5, ScriptRunnerCommandHandlerExecutedHook, 0, 0);
 MemHdlr						kScriptRunnerLineExecutionFailed			(0x00517576, ScriptRunnerLineExecutionFailedHook, 0, 0);
 MemHdlr						kScriptRunnerExecutionComplete				(0x00517617, ScriptRunnerExecutionCompleteHook, 0, 0);
 
-
-static UInt32				CurrentLineBuffer = 0;			// passed by the Debugbreak handler, cached by command handler event
-
-
-// ### i seeem to be passing opcodes instead of offsets!!
+static UInt32				CurrentLineBuffer = 0;
+static UInt32				CurrentOffsetBuffer = 0;
 
 void PatchScriptRunnerMethods(void)
 {
@@ -34,6 +32,7 @@ void PatchScriptRunnerMethods(void)
 	kScriptRunnerEncounteredReturnCommand.WriteJump();	
 	kScriptRunnerBlockHandlerCalled.WriteJump();
 	kScriptRunnerCommandHandlerCalled.WriteJump();
+	kScriptRunnerCommandHandlerExecuted.WriteJump();
 	kScriptRunnerLineExecutionFailed.WriteJump();	
 	kScriptRunnerExecutionComplete.WriteJump();
 }
@@ -45,26 +44,23 @@ void __stdcall DebugTextDetour(const char* Message)
 
 void __stdcall SendMessagePingback(DebuggerMessage Message, UInt32* Data)
 {
-	if ((CLIWrapper::Debugger::GetIsInitialized() || Message == kDebuggerMessage_DebugBreakCalled) &&
-		CLIWrapper::Debugger::ScriptRunnerCallbackWrapper(Message, Data) == kDebuggerState_Break)
+	if (GetCurrentThreadId() != (*g_TESGame)->mainThreadID)
+		DebugPrint("Ignoring ScriptRunner event called in background thread %d", GetCurrentThreadId());
+	else if (CLIWrapper::Debugger::GetIsInitialized() || Message == kDebuggerMessage_DebugBreakCalled)
 	{
-		do
-		{
-			Sleep(0x32);
-		}
-		while (CLIWrapper::Debugger::GetExecutingContextState() == kDebuggerState_Break);
+		CLIWrapper::Debugger::ScriptRunnerCallbackWrapper(Message, Data);
 	}
 
 	delete [] Data;
 }
 
 
-void __stdcall HandleScriptRunnerEvent_NewInstance(Script* Script, ScriptEventList* EventList, UInt32 Line, UInt16 Offset)
+void __stdcall HandleScriptRunnerEvent_NewInstance(Script* Script, ScriptEventList* EventList, UInt32 Line, UInt32 Offset)
 {
 	UInt32* Data = new UInt32[4];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	Data[2] = (UInt32)Script;
 	Data[3] = (UInt32)EventList;
 	
@@ -93,12 +89,12 @@ void __declspec(naked) ScriptRunnerNewInstanceHook(void)
 	}
 }
 
-void __stdcall HandleScriptRunnerEvent_NewLineExecutionStart(UInt32 Line, UInt16 Offset)
+void __stdcall HandleScriptRunnerEvent_NewLineExecutionStart(UInt32 Line, UInt32 Offset)
 {
 	UInt32* Data = new UInt32[2];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	
 	SendMessagePingback(kDebuggerMessage_NewLineExecutionStart, Data);
 }
@@ -107,7 +103,7 @@ void __declspec(naked) ScriptRunnerNewLineExecutionStartHook(void)
 	__asm
 	{
 		mov		eax, [esp + 0x28]	
-		mov     ecx, [esp + 0x38]	
+		mov     ecx, [esp + 0x18]	
 		pushad
 		push	ecx
 		push	eax
@@ -115,17 +111,18 @@ void __declspec(naked) ScriptRunnerNewLineExecutionStartHook(void)
 		popad
 
 		mov		eax, 0x00517520
+		mov     ecx, [esp + 0x38]	
 		cmp     ecx, 0x1E
 		jmp		eax
 	}
 }
 
-void __stdcall HandleScriptRunnerEvent_ReferenceEvaluationFailed(UInt32 Line, UInt16 Offset)
+void __stdcall HandleScriptRunnerEvent_ReferenceEvaluationFailed(UInt32 Line, UInt32 Offset)
 {
 	UInt32* Data = new UInt32[2];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	
 	SendMessagePingback(kDebuggerMessage_ReferenceEvaluationFailed, Data);
 }
@@ -134,7 +131,7 @@ void __declspec(naked) ScriptRunnerReferenceEvaluationFailedHook(void)
 	__asm
 	{
 		mov		eax, [esp + 0x28]	
-		mov     ecx, [esp + 0x38]
+		mov     ecx, [esp + 0x18]
 		pushad
 		push	ecx
 		push	eax
@@ -147,12 +144,12 @@ void __declspec(naked) ScriptRunnerReferenceEvaluationFailedHook(void)
 	}
 }
 
-void __stdcall HandleScriptRunnerEvent_EncounteredReturnCommand(UInt32 Line, UInt16 Offset)
+void __stdcall HandleScriptRunnerEvent_EncounteredReturnCommand(UInt32 Line, UInt32 Offset)
 {
 	UInt32* Data = new UInt32[2];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	
 	SendMessagePingback(kDebuggerMessage_EncounteredReturnCommand, Data);
 }
@@ -161,11 +158,13 @@ void __declspec(naked) ScriptRunnerEncounteredReturnCommandHook(void)
 	__asm
 	{
 		jz		RETURN
-		mov		eax, 0x00517522
-		jmp		eax
+
+		mov     eax, [esp + 0x24]
+		mov		edx, 0x00517526
+		jmp		edx
 	RETURN:
 		mov		eax, [esp + 0x28]	
-		mov     ecx, [esp + 0x38]
+		mov     ecx, [esp + 0x18]
 		pushad
 		push	ecx
 		push	eax
@@ -177,32 +176,39 @@ void __declspec(naked) ScriptRunnerEncounteredReturnCommandHook(void)
 	}
 }	
 
-void __stdcall HandleScriptRunnerEvent_BlockHandlerCalled(UInt32 Line, UInt16 Offset, UInt32 CommandTableOffset)
+void __stdcall HandleScriptRunnerEvent_BlockHandlerCalled(UInt32 Line, UInt32 Offset, UInt32 CommandTableOffset)
 {
 	CommandInfo* Command = &((CommandInfo*)kCommandTable_ScriptBlocks)[CommandTableOffset];
 	UInt32* Data = new UInt32[3];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	Data[2] = (UInt32)Command->longName;
 	
 	SendMessagePingback(kDebuggerMessage_BlockHandlerCalled, Data);
-	CurrentLineBuffer = Line;
 }
 void __declspec(naked) ScriptRunnerBlockHandlerCalledHook(void)
 {
 	__asm
 	{
+		mov		eax, [esp + 0x75C]			// check retn addr to prevent the hook from misfiring when
+		cmp		eax, 0x00517552				// called from the auxiliary ScriptRunner::Run method
+		jnz		EXIT
+
+
 		mov		eax, [esp + 0x770]			// opcode offset
 		movsx   edx, word ptr [edi + eax]	// command table offset
 
+		push	ecx
 		push	edx
-		mov		eax, [esp + 0x77C]			// line  ### will need correction according to previous push (+/-4) ; org 0x770, 0x14
-		mov		edx, [esp + 0x18]			// offset
+		mov		eax, [esp + 0x780]			
+		mov		edx, [esp + 0x1C]	
 		push	edx
 		push	eax
 		call	HandleScriptRunnerEvent_BlockHandlerCalled
+		pop		ecx
 
+	EXIT:
 		lea     eax, [esp + 0x14]
 		push    eax
 		mov     eax, [esi + 0x8]
@@ -211,30 +217,39 @@ void __declspec(naked) ScriptRunnerBlockHandlerCalledHook(void)
 	}
 }
 
-void __stdcall HandleScriptRunnerEvent_CommandHandlerCalledHook(UInt32 Line, UInt16 Offset, UInt32 CommandOpcode)
+void __stdcall HandleScriptRunnerEvent_CommandHandlerCalledHook(UInt32 Line, UInt32 Offset, UInt32 CommandOpcode)
 {
 	CommandInfo* Command = ((CommandInfo* (__cdecl *)(UInt16))kScriptRunner_LookupCommandByOpcode)(CommandOpcode);
 	UInt32* Data = new UInt32[3];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	Data[2] = (UInt32)Command->longName;
 	
 	SendMessagePingback(kDebuggerMessage_CommandHandlerCalled, Data);
+	CurrentLineBuffer = Line;
+	CurrentOffsetBuffer = Offset - 4;
 }
 void __declspec(naked) ScriptRunnerCommandHandlerCalledHook(void)
 {
 	__asm
 	{
+		mov		eax, [esp + 0x75C]			// retn addr
+		cmp		eax, 0x00517552
+		jnz		EXIT
+
 		mov     eax, [esp + 0x764]			// opcode
 
+		push	ecx
 		push	eax
-		mov		eax, [esp + 0x77C]			// line  ### will need correction according to previous push (+/-4) ; org 0x770, 0x14
-		mov		edx, [esp + 0x18]			// offset
+		mov		eax, [esp + 0x780]
+		mov		edx, [esp + 0x1C]
 		push	edx
 		push	eax
 		call	HandleScriptRunnerEvent_CommandHandlerCalledHook
+		pop		ecx
 
+	EXIT:
 		lea     eax, [esp + 0x14]
 		push    eax
 		mov     eax, [esi + 0x8]
@@ -243,12 +258,36 @@ void __declspec(naked) ScriptRunnerCommandHandlerCalledHook(void)
 	}
 }
 
-void __stdcall HandleScriptRunnerEvent_LineExecutionFailed(UInt32 Line, UInt16 Offset)
+void __declspec(naked) ScriptRunnerCommandHandlerExecutedHook(void)
+{	
+	__asm
+	{
+		push    eax
+		call    ecx
+		add     esp, 0x20
+
+		mov		ecx, [esp + 0x778]			// retn addr
+		cmp		ecx, 0x00517552
+		jnz		EXIT
+
+		mov		ecx, [esp + 0x77C]
+		mov		CurrentLineBuffer, ecx
+		mov		ecx, [esp + 0x14]			// ### check
+		sub		ecx, 4
+		mov		CurrentOffsetBuffer, ecx
+
+	EXIT:
+		mov		ecx, 0x005172CB
+		jmp		ecx
+	}
+}
+
+void __stdcall HandleScriptRunnerEvent_LineExecutionFailed(UInt32 Line, UInt32 Offset)
 {
 	UInt32* Data = new UInt32[2];
 
 	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
+	Data[1] = (UInt32)Offset - 4;
 	
 	SendMessagePingback(kDebuggerMessage_LineExecutionFailed, Data);
 }
@@ -257,7 +296,7 @@ void __declspec(naked) ScriptRunnerLineExecutionFailedHook(void)
 	__asm
 	{
 		mov		eax, [esp + 0x28]	
-		mov     ecx, [esp + 0x38]
+		mov     ecx, [esp + 0x18]
 		pushad
 		push	ecx
 		push	eax
@@ -282,7 +321,7 @@ void __declspec(naked) ScriptRunnerExecutionCompleteHook(void)
 {
 	__asm
 	{
-		pushad
+		pushad									// ### recheck - doesn't return the correct result
 		test	al, al
 		jz		FAIL
 		push	1
@@ -305,17 +344,16 @@ bool Cmd_DebugBreak_Execute(COMMAND_ARGS)
 
 	UInt32* Data = new UInt32[4];
 
-	Data[0] = (UInt32)Line;
-	Data[1] = (UInt32)Offset;
-	Data[2] = (UInt32)Script;
-	Data[3] = (UInt32)EventList;
+	Data[0] = (UInt32)CurrentLineBuffer;
+	Data[1] = (UInt32)*opcodeOffsetPtr - 4;		// scriptname token's opcode is parsed before the first hook
+	Data[2] = (UInt32)scriptObj;
+	Data[3] = (UInt32)eventList;
 	
 	SendMessagePingback(kDebuggerMessage_DebugBreakCalled, Data);
-	CurrentLineBuffer
 	return true;
 }
 
-static CommandInfo kCommandInfo_DebugBreak =
+CommandInfo kCommandInfo_DebugBreak =
 {
 	"DebugBreak",
 	"",

@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Images.resx"
+				>
+			</File>
+			<File
 				RelativePath="..\..\[Common]\Includes.h"
 				>
 			</File>
@@ -215,6 +219,54 @@
 				RelativePath=".\Resource.h"
 				>
 			</File>
+			<Filter
+				Name="Images"
+				>
+				<File
+					RelativePath=".\Images\BringForwardHS.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\Go.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeBlock.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeBreakpoint.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeCommand.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeError.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeLine.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeReturn.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ResumeScript.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\SendToBackHS.png"
+					>
+				</File>
+				<File
+					RelativePath=".\Images\ToolBarQuitGame.png"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Wrappers"
@@ -294,6 +346,10 @@
 		</File>
 		<File
 			RelativePath=".\Exports.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Globals.h"
 			>
 		</File>
 		<File

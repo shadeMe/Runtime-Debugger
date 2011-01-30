@@ -1,9 +1,10 @@
 #include "DebuggerContext.h"
 #include "[Common]\NativeWrapper.h"
+#include "Globals.h"
 
 DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* WorkingEventList, StandardErrorOutput^ ErrorOutput, UInt32 CurrentLine, UInt16 CurrentOffset)
 {
-	TextViewer = gcnew ScriptDebuggerRTB(6, gcnew Font("Consolas", 9.75, FontStyle::Regular), Color::Black, Color::White, Color::Blue, Color::Lime, Color::Yellow);
+	TextViewer = gcnew ScriptDebuggerRTB(6, gcnew Font("Consolas", 9.75, FontStyle::Regular), Color::Black, Color::Gray, Color::Firebrick, Color::Yellow, Color::RosyBrown);
 	
 	MainSplitter = gcnew SplitContainer();
 	ComponentToolbar = gcnew ToolStrip();
@@ -11,6 +12,9 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	ToolbarShowGlobals = gcnew ToolStripButton();
 	Locals = gcnew ListView();
 	Globals = gcnew ListView();
+
+	SetupControlImage(ToolbarShowLocals);
+	SetupControlImage(ToolbarShowGlobals);
 
 	MainSplitter->Dock = DockStyle::Fill;
 	MainSplitter->Orientation = Orientation::Horizontal;
@@ -20,6 +24,7 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	MainSplitter->Panel2->Controls->Add(Locals);
 	MainSplitter->Panel2->Controls->Add(Globals);
 	MainSplitter->SplitterDistance = 400;
+	MainSplitter->BorderStyle = BorderStyle::FixedSingle;
 
 	ComponentToolbar->AllowItemReorder = true;
 	ComponentToolbar->AllowMerge = false;
@@ -28,41 +33,37 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	ComponentToolbar->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {ToolbarShowLocals, ToolbarShowGlobals});
 	ComponentToolbar->RightToLeft = System::Windows::Forms::RightToLeft::Yes;
 
-	ToolbarShowLocals->ImageTransparentColor = System::Drawing::Color::Magenta;
-	ToolbarShowLocals->Size = System::Drawing::Size(108, 22);
+	ToolbarShowLocals->AutoSize = true;
 	ToolbarShowLocals->Text = L"Show Script Locals";
 	ToolbarShowLocals->ToolTipText = L"Show Script Locals";
 	ToolbarShowLocals->Click += gcnew EventHandler(this, &DebuggerContext::ToolbarShowLocals_Click);
+	ToolbarShowLocals->DisplayStyle = ToolStripItemDisplayStyle::Image;
 
-	ToolbarShowGlobals->ImageTransparentColor = System::Drawing::Color::Magenta;
-	ToolbarShowGlobals->Size = System::Drawing::Size(76, 22);
+	ToolbarShowGlobals->AutoSize = true;
 	ToolbarShowGlobals->Text = L"Show Script Globals";
 	ToolbarShowGlobals->ToolTipText = L"Show Script Globals";
 	ToolbarShowGlobals->Click += gcnew EventHandler(this, &DebuggerContext::ToolbarShowGlobals_Click);
+	ToolbarShowGlobals->DisplayStyle = ToolStripItemDisplayStyle::Image;
 
+{
 	ColumnHeader^ VariableName = gcnew ColumnHeader();
 	VariableName->Text = "Variable Name";
-	VariableName->Width = 75;
+	VariableName->Width = 250;
 	ColumnHeader^ VariableValue = gcnew ColumnHeader();
 	VariableValue->Text = "Variable Value";
-	VariableValue->Width = 100;
+	VariableValue->Width = 200;
 	ColumnHeader^ VariableIndex = gcnew ColumnHeader();
 	VariableIndex->Text = "Variable Index";
-	VariableIndex->Width = 100;
+	VariableIndex->Width = 200;
 	ColumnHeader^ VariableType = gcnew ColumnHeader();
 	VariableType->Text = "Variable Type";
-	VariableType->Width = 100;
-	ColumnHeader^ ParentGlobalForm = gcnew ColumnHeader();
-	ParentGlobalForm->Text = "Global Form";
-	ParentGlobalForm->Width = 75;
-
-
+	VariableType->Width = 200;
+	
 	Locals->Font = gcnew Font("Consolas", 9.75, FontStyle::Regular);
 	Locals->Dock = DockStyle::Fill;
 	Locals->BorderStyle = BorderStyle::Fixed3D;
 	Locals->BackColor = Color::White;
 	Locals->ForeColor = Color::Black;
-	Locals->Visible = false;
 	Locals->View = View::Details;
 	Locals->MultiSelect = false;
 	Locals->CheckBoxes = false;
@@ -70,20 +71,36 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	Locals->HideSelection = false;
 	Locals->SmallImageList = VariableIconList;
 	Locals->Columns->AddRange(gcnew cli::array< ColumnHeader^  >(4) {VariableName, VariableValue, VariableIndex, VariableType});
+}
+
+{
+	ColumnHeader^ VariableName = gcnew ColumnHeader();
+	VariableName->Text = "Variable Name";
+	VariableName->Width = 250;
+	ColumnHeader^ VariableValue = gcnew ColumnHeader();
+	VariableValue->Text = "Variable Value";
+	VariableValue->Width = 200;
+	ColumnHeader^ VariableIndex = gcnew ColumnHeader();
+	VariableIndex->Text = "Variable Index";
+	VariableIndex->Width = 200;
+	ColumnHeader^ VariableType = gcnew ColumnHeader();
+	VariableType->Text = "Variable Type";
+	VariableType->Width = 200;
+	ColumnHeader^ ParentGlobalForm = gcnew ColumnHeader();
 
 	Globals->Font = gcnew Font("Consolas", 9.75, FontStyle::Regular);
 	Globals->Dock = DockStyle::Fill;
 	Globals->BorderStyle = BorderStyle::Fixed3D;
 	Globals->BackColor = Color::White;
 	Globals->ForeColor = Color::Black;
-	Globals->Visible = false;
 	Globals->View = View::Details;
 	Globals->MultiSelect = false;
 	Globals->CheckBoxes = false;
 	Globals->FullRowSelect = true;
 	Globals->HideSelection = false;
 	Globals->SmallImageList = VariableIconList;
-	Globals->Columns->AddRange(gcnew cli::array< ColumnHeader^  >(5) {ParentGlobalForm, VariableName, VariableValue, VariableIndex, VariableType});
+	Globals->Columns->AddRange(gcnew cli::array< ColumnHeader^  >(4) {VariableName, VariableValue, VariableIndex, VariableType});
+}
 
 	this->WorkingScript = WorkingScript;
 	this->WorkingEventList = WorkingEventList;
@@ -93,15 +110,19 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	this->CurrentOffset = CurrentOffset;
 	State = gcnew ContextState();
 
-	TextViewer->CalculateLineOffsetsForTextField((UInt32)WorkingScript->data, WorkingScript->info.dataLength);
 	TextViewer->GetTextField()->Text = gcnew String(WorkingScript->text);
+	TextViewer->GetTextField()->ReadOnly = true;
+
+	if (TextViewer->CalculateLineOffsetsForTextField((UInt32)WorkingScript->data, WorkingScript->info.dataLength) == false)
+		ErrorOutput("Couldn't calculate offsets for script!");
 
 	UpdateContext(CurrentLine, CurrentOffset);
+	Locals->BringToFront();
 }
 
 String^ DebuggerContext::DescribeWorkingScript()
 { 
-	return WorkingScript->refID.ToString("x8"); 
+	return "Script " + WorkingScript->refID.ToString("x8") + " ~ " + "T[" + WorkingScript->info.type + "] ; V[" + WorkingScript->info.varCount + "] ; R[" + WorkingScript->info.numRefs + "]";
 }
 
 void DebuggerContext::UpdateContext(UInt32 CurrentLine, UInt16 CurrentOffset)
@@ -109,34 +130,31 @@ void DebuggerContext::UpdateContext(UInt32 CurrentLine, UInt16 CurrentOffset)
 	this->CurrentLine = CurrentLine;
 	this->CurrentOffset = CurrentOffset;
 
-	UpdateCurrentLine(CurrentLine);
+	UpdateCurrentOffset(CurrentOffset);
 	UpdateAutos();
 }
 
-void DebuggerContext::ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, UInt32 GlobalFormID)
+void DebuggerContext::ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, ListViewGroup^ GlobalFormGroup)
 {
 	for (ScriptEventList::VarEntry* Itr = SourceEventList->m_vars; Itr != 0; Itr = Itr->next)
 	{
 		if (Itr->var == 0)
 			continue;
 
-		ListViewItem^ Item = gcnew ListViewItem();
+		ListViewItem^ Item = nullptr;
+		if (GlobalFormGroup != nullptr)
+			Item = gcnew ListViewItem(GlobalFormGroup);
+		else
+			Item = gcnew ListViewItem();
+
 		Script::VariableInfo* VarInfo = SourceScript->GetVariableInfo(Itr->var->id);
 		Script::RefVariable* RefInfo = SourceScript->GetVariable(Itr->var->id);
 		if (VarInfo)
 		{
-			if (GlobalFormID)
-			{
-				Item->Text = GlobalFormID.ToString("x8");
-				Item->SubItems->Add(gcnew String(VarInfo->name.m_data));				
-			}
-			else
-			{
-				Item->Text = gcnew String(VarInfo->name.m_data);
-			}
+			Item->Text = gcnew String(VarInfo->name.m_data);
 
 			if (RefInfo)
-				Item->SubItems->Add(Itr->var->data.ToString("x8"));
+				Item->SubItems->Add(((UInt32)Itr->var->data).ToString("x8"));
 			else
 				Item->SubItems->Add(Itr->var->data.ToString());
 
@@ -166,12 +184,13 @@ void DebuggerContext::UpdateAutos()
 {
 	Locals->BeginUpdate();
 	Locals->Items->Clear();
-	ParseEventListForEnumeration(WorkingScript, WorkingEventList, Locals, 0);
+	ParseEventListForEnumeration(WorkingScript, WorkingEventList, Locals, nullptr);
 	Locals->EndUpdate();
 
 	Globals->BeginUpdate();
 
 	Globals->Items->Clear();
+	Globals->Groups->Clear();
 	for (ScriptEventList::VarEntry* Itr = WorkingEventList->m_vars; Itr != 0; Itr = Itr->next)
 	{
 		if (Itr->var == 0)
@@ -183,17 +202,14 @@ void DebuggerContext::UpdateAutos()
 			Script* GlobalScript = 0;
 			ScriptEventList* GlobalEventList = 0;
 
-			if (NativeWrapper::GetScriptDataForForm((UInt32)Itr->var->data, &GlobalScript, &GlobalEventList))
+			if (NativeWrapper::GetScriptDataForForm((UInt32)Itr->var->data, &GlobalScript, &GlobalEventList) == false) // ### wtf! recheck condition
 			{
-				ParseEventListForEnumeration(GlobalScript, GlobalEventList, Globals, (UInt32)Itr->var->data);
+				UInt32 GlobalFormID = (UInt32)Itr->var->data;
+				ListViewGroup^ GlobalGroup = gcnew ListViewGroup(GlobalFormID.ToString("X8"), "Global Reference"); 
+				Globals->Groups->Add(GlobalGroup);
+				ParseEventListForEnumeration(GlobalScript, GlobalEventList, Globals, GlobalGroup);
 			}
-
-			ListViewItem^ Item = gcnew ListViewItem("");
-			Item->SubItems->Add(""), Item->SubItems->Add(""), Item->SubItems->Add(""), Item->SubItems->Add("");
-			Globals->Items->Add(Item);
 		}
-		else
-			ErrorOutput("Couldn't get variable info for index '" + Itr->var->id + "' in script " + WorkingScript->refID.ToString("x8") + "!");
 	}
 
 	Globals->EndUpdate();
@@ -213,18 +229,18 @@ UInt8 DebuggerContext::GetState()
 {
 	UInt8 Result = kDebuggerState_Invalid;
 
-	Monitor::Enter(State);
+//	Monitor::Enter(State);
 	Result = State->Get();
-	Monitor::PulseAll(State);
-	Monitor::Exit(State);
+//	Monitor::PulseAll(State);
+//	Monitor::Exit(State);
 
 	return Result;
 }
 
 void DebuggerContext::SetState(UInt8 State)
 {
-	Monitor::Enter(this->State);
+//	Monitor::Enter(this->State);
 	this->State->Set(State);
-	Monitor::PulseAll(this->State);
-	Monitor::Exit(this->State);
+//	Monitor::PulseAll(this->State);
+//	Monitor::Exit(this->State);
 }

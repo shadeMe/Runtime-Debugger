@@ -6,11 +6,13 @@ enum DebuggerState
 	kDebuggerState_Break,
 	kDebuggerState_Debugging,
 
+	kDebuggerState_DebugTillNextBreakpoint,
 	kDebuggerState_DebugTillNextLine,
 	kDebuggerState_DebugTillNextBlock,
 	kDebuggerState_DebugTillNextError,
 	kDebuggerState_DebugTillNextCommand,
-	kDebuggerState_DebugTillReturn
+	kDebuggerState_DebugTillReturn,
+	kDebuggerState_DebugTillNextScript
 };
 
 enum DebuggerMessage
@@ -34,6 +36,10 @@ enum DebuggerMessage
 	public:
 		BaseFormComponent();
 		~BaseFormComponent();
+
+		virtual void	Destructor(void);	// 00
+		virtual void	Unk_01(void);
+		virtual void	CopyFromBase(BaseFormComponent * component);
 	};
 
 	struct BSString
@@ -236,13 +242,10 @@ enum DebuggerMessage
 
 		RefVariable	*	GetVariable(UInt32 reqIdx)
 		{
-			UInt32	idx = 1;	// yes, really starts at 1
 			for(RefListEntry * entry = &refList; entry; entry = entry->next)
 			{
-				if(idx == reqIdx)
+				if(entry->var && entry->var->varIdx == reqIdx)
 					return entry->var;
-
-				idx++;
 			}
 
 			return 0;

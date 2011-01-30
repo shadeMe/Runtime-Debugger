@@ -2,10 +2,12 @@
 
 UInt32				kTESFile_GetChunkData = 0x00450C20;
 
-MemHdlr				kScriptLoadText		(0x004FC136, ScriptLoadTextHook, 0, 0);
-// ### make sure vars have their name strings allocated
+TESGame**			g_TESGame = (TESGame**)0x00B33398;
 
-void PatchScriptTextLoad(void)
+MemHdlr				kScriptLoadText		(0x004FC136, ScriptLoadTextHook, 0, 0);
+
+
+void PatchGameInitialization(void)
 {
 	kScriptLoadText.WriteJump();
 }

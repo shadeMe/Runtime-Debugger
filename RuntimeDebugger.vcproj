@@ -415,6 +415,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\Exports.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Exports.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Main.cpp"
 			>
 		</File>

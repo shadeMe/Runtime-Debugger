@@ -12,28 +12,44 @@ public ref class DebuggerBase
 		SplitContainer^						MainSplitter;
 			SplitContainer^						CallStackSplitter;
 				ToolStrip^							DebuggerToolbar;
-					ToolStripButton^					ToolbarResumeDebugger;
-					ToolStripButton^					ToolbarExecuteLine;
+					ToolStripButton^					ToolbarQuitGame;
+					ToolStripButton^					ToolbarResumeExecution;
+					ToolStripButton^					ToolbarExecuteTillNextBreakpoint;
+					ToolStripButton^					ToolbarExecuteTillNextLine;
+					ToolStripButton^					ToolbarExecuteTillNextBlock;
+					ToolStripButton^					ToolbarExecuteTillNextError;
+					ToolStripButton^					ToolbarExecuteTillNextCommand;
+					ToolStripButton^					ToolbarExecuteTillReturn;
+					ToolStripButton^					ToolbarExecuteTillNextScript;
 				ListView^						CallStackList;
 					ColumnHeader^						CallStackLabel;
-			ListBox^							Console;
+			ListView^							Console;
 
 
 	Stack<DebuggerContext^>^			CallStack;	
+	bool								Initialized;
 
-	void								ToolbarResumeDebugger_Click(Object^ Sender, EventArgs^ E);
-	void								ToolbarExecuteLine_Click(Object^ Sender, EventArgs^ E);
+	void								ToolbarQuitGame_Click(Object^ Sender, EventArgs^ E);
+	void								ToolbarResumeExecution_Click(Object^ Sender, EventArgs^ E);
+	void								ToolbarExecuteButtons_Click(Object^ Sender, EventArgs^ E);
+	void								DebuggerBox_Cancel(Object^ Sender, FormClosingEventArgs^ E);
+	void								CallStackList_ItemActivate(Object^ Sender, EventArgs^ E);
+
+	void								SetupExecuteButton(ToolStripButton^ Button, String^ DisplayText, UInt8 State);
 
 	void								UpdateCallStackList();
 	DebuggerContext^					GetExecutingContext();
 	void								Initialize();
 	void								Deinitialize();
+
+	void								Show();
+	void								Hide() { DebuggerBox->Hide(); }
 public:
 	static DebuggerBase^%				GetSingleton();
 
-	bool								GetIsInitialized() { return DebuggerBox->Visible; }
-	UInt8								GetState() { return GetExecutingContext()->GetState(); }
-	void								SetState(UInt8 State) { GetExecutingContext()->SetState(State); }
+	bool								GetIsInitialized() { return Initialized; }
+	UInt8								GetState();
+	void								SetState(UInt8 State);
 	void								DebugScript(Script* WorkingScript, ScriptEventList* EventList, UInt32 CurrentLine, UInt16 CurrentOffset);
 	UInt8								HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* Data);
 	void								PrintToConsole(String^ Message);

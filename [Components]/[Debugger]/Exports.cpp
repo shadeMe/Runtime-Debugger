@@ -21,7 +21,8 @@ __declspec(dllexport) UInt8 ScriptRunnerCallbackWrapper(DebuggerMessage Message,
 
 __declspec(dllexport) void PrintToConsole(const char* Message)
 {
-	DEBUGGER->PrintToConsole(gcnew String(Message));
+	if (GetIsInitialized())
+		DEBUGGER->PrintToConsole("[0000]\t\t " + gcnew String(Message));
 }
 
 }

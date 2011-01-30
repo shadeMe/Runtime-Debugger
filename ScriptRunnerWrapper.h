@@ -15,7 +15,8 @@ extern MemHdlr		kScriptRunnerNewLineExecutionStart;
 extern MemHdlr		kScriptRunnerReferenceEvaluationFailed;
 extern MemHdlr		kScriptRunnerEncounteredReturnCommand;	
 extern MemHdlr		kScriptRunnerBlockHandlerCalled;
-extern MemHdlr		kScriptRunnerCommandHandlerCalled;				
+extern MemHdlr		kScriptRunnerCommandHandlerCalled;		
+extern MemHdlr		kScriptRunnerCommandHandlerExecuted;	
 extern MemHdlr		kScriptRunnerLineExecutionFailed;	
 extern MemHdlr		kScriptRunnerExecutionComplete;
 
@@ -25,6 +26,7 @@ void ScriptRunnerReferenceEvaluationFailedHook(void);
 void ScriptRunnerEncounteredReturnCommandHook(void);	
 void ScriptRunnerBlockHandlerCalledHook(void);
 void ScriptRunnerCommandHandlerCalledHook(void);
+void ScriptRunnerCommandHandlerExecutedHook(void);
 void ScriptRunnerLineExecutionFailedHook(void);	
 void ScriptRunnerExecutionCompleteHook(void);
 
