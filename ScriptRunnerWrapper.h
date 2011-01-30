@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RUDEInternals.h"
+#include "[Common]\DebuggerMessagingInterface.h"
 
 extern const UInt32		kScriptRunner_GetSingleton;
 extern const UInt32		kScriptRunner_RunScript;
@@ -31,3 +32,4 @@ void ScriptRunnerLineExecutionFailedHook(void);
 void ScriptRunnerExecutionCompleteHook(void);
 
 void __stdcall DebugTextDetour(const char* Message);
+void __stdcall SendMessagePingback(DebuggerMessage Message, UInt32* Data);

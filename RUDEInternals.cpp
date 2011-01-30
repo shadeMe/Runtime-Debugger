@@ -1,4 +1,6 @@
 #include "RUDEInternals.h"
+#include "ScriptRunnerWrapper.h"
+#include <string>
 
 UInt32				kTESFile_GetChunkData = 0x00450C20;
 
@@ -40,5 +42,40 @@ void __declspec(naked) ScriptLoadTextHook(void)
 
 		mov		eax, 0x004FC2FD
 		jmp		eax
+	}
+}
+
+void OBSEMessageHandler(OBSEMessagingInterface::Message* Msg)
+{
+	switch (Msg->type)
+	{
+	case OBSEMessagingInterface::kMessage_RuntimeScriptError:
+		std::string MessageText((const char*)Msg->data);
+
+		size_t OffsetIdx = MessageText.find("0x");
+
+		std::string ErrorMessage = MessageText.substr(0, MessageText.find_first_of("\n")), ErrorOffset(""), CommandName("");
+		if (OffsetIdx != std::string::npos)
+		{
+			ErrorOffset = MessageText.substr(MessageText.find("0x") + 2, 4);
+			CommandName = MessageText.substr(MessageText.find("0x") + 16, MessageText.length());
+		}
+
+		UInt32 Offset = 0;
+		if (ErrorOffset != "")
+		{
+			sscanf_s(ErrorOffset.c_str(), "%04X", &Offset);
+			Offset -= 4;
+		}
+
+		UInt32* Data = new UInt32[4];
+
+		Data[0] = (UInt32)0;
+		Data[1] = (UInt16)Offset;
+		Data[2] = (UInt32)ErrorMessage.c_str();
+		Data[3] = (UInt32)CommandName.c_str();
+		
+		SendMessagePingback(kDebuggerMessage_OBSEScriptErrorEncountered, Data);
+		break;
 	}
 }

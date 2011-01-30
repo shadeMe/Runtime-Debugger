@@ -25,7 +25,8 @@ enum DebuggerMessage
 	kDebuggerMessage_BlockHandlerCalled,						//		block name
 	kDebuggerMessage_CommandHandlerCalled,						//		command name	
 	kDebuggerMessage_LineExecutionFailed,
-	kDebuggerMessage_ExecutionComplete							//		result
+	kDebuggerMessage_ExecutionComplete,							//		result
+	kDebuggerMessage_OBSEScriptErrorEncountered					//		error message, command name
 };
 
 #ifndef OBLIVION		// ### figure out how to get the native sdk compile PROPERLY with clr projects
@@ -52,6 +53,88 @@ enum DebuggerMessage
 		UInt16	m_bufLen;
 	};
 
+	struct ModEntry
+	{
+		// 41C / 420
+		struct Data		// referred to as 'TESFile' by Bethesda
+		{
+			enum
+			{
+				kFlag_IsMaster =	1 << 0,
+				kFlag_Loaded =		1 << 2,
+				kFlag_Active =		1 << 3
+			};
+
+			template <typename tData> struct Node
+			{
+				tData		* data;
+				Node<tData>	* next;
+			};
+
+			struct	ChunkInfo
+			{
+				UInt32	type;		// e.g. 'GRUP', 'GLOB', etc
+				UInt32	length;
+			};
+
+			struct	FormInfo	// ###TODO double check this, see 46B910 (TESForm virtual func, accepts Unk23C* as arg)
+			{
+				ChunkInfo	chunkInfo;
+				UInt32		flags;
+				UInt32		formID;
+				UInt32		unk10;
+			};
+
+			struct  SizeInfo	// as seen in the editor
+			{
+				UInt32		fileSizeLow;			// WIN32_FIND_DATA::nFileSizeLow 
+				UInt32		fileSizeHigh;			// WIN32_FIND_DATA::nFileSizeHigh
+			};
+
+			// static members: B33C1C, B33C20
+
+			UInt32	unk000;							// 000 appears to indicate status of file (open, closed, etc) 2, 9, 0C do stuff
+			UInt32	unk004;							// 004
+			UInt32	unk008;							// 008
+			UInt32	unk00C;							// 00C
+			void	* bsFile;						// 010
+			UInt32	unk014;							// 014
+			UInt32	unk018;							// 018
+			char	name[0x104];					// 01C
+			char	filepath[0x104];				// 120 relative to "Oblivion\"
+			UInt32	unk224;							// 224
+			UInt32	unk228;							// 228 init to *(0xB055CC), seen 0x2800
+			UInt32	unk22C[(0x23C - 0x22C) >> 2];	// 22C
+			FormInfo	formInfo;					// 23C
+			UInt32	chunkType250;					// 250
+			UInt32	unk254[(0x290 - 0x254) >> 2];	// 254
+			UInt32	findData[(0x3D0 - 0x290) >> 2]; // 290 
+			UInt32	version;						// 3D0 plugin version (0.8/1.0)
+			UInt32	formCount;						// 3D4 record/form count
+			UInt32	nextFormID;						// 3D8 used by TESFile::sub_486BF0 in the editor
+			UInt32	flags;							// 3DC
+			Node<char>		masterList;				// 3E0 linked list of .esm dependencies
+			Node<SizeInfo>	masterSizeInfo;			// 3E8 linked list of file size info for above list
+			UInt32	idx;							// 3F0
+			void	* unk3F4;						// 3F4
+			UInt32	unk3F8;							// 3F8
+			UInt32	unk3FC;							// 3FC
+			UInt8	unk400;							// 400 init to -1
+			UInt8	pad401[3];
+			BSString	authorName;					// 404
+			BSString	modDescription;				// 40C
+			UInt32	unk414;							// 414
+			UInt32	unk418;							// 418
+		};
+
+		Data		* data;
+		ModEntry	* next;
+
+		ModEntry * Next() const	{	return next;	}
+		Data * Info() const		{	return data;	}
+		bool IsLoaded()	const	{	return (data && (data->flags & Data::kFlag_Loaded)) ? true : false;	}
+	};
+
 	class TESForm : public BaseFormComponent
 	{
 	public:
@@ -60,7 +143,7 @@ enum DebuggerMessage
 
 		struct ModReferenceList
 		{
-			void				* data;
+			ModEntry			* data;
 			ModReferenceList	* next;
 		};
 
@@ -169,7 +252,7 @@ enum DebuggerMessage
 		struct RefVariable
 		{
 			BSString	name;		// variable name/editorID (not used at run-time)
-			void	* form;		// TESForm*, non-zero for global refs
+			TESForm	* form;		// TESForm*, non-zero for global refs
 			UInt32	varIdx;		// always zero in editor
 		};
 

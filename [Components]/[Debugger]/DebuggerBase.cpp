@@ -4,6 +4,7 @@
 
 DebuggerBase::DebuggerBase()
 {
+	Application::EnableVisualStyles();
 	DebuggerBox = gcnew Form();
 	MainSplitter = (gcnew SplitContainer());
 	CallStackSplitter = (gcnew SplitContainer());
@@ -386,6 +387,26 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 
 			if (GetExecutingContext()->GetState() == kDebuggerState_Break)
 				SetState(kDebuggerState_Break);
+			break;
+		}
+	case kDebuggerMessage_OBSEScriptErrorEncountered:
+		{
+			UInt32 Line = Data[0];
+			UInt32 Offset = Data[1];
+
+			String^ ErrorMessage = gcnew String((const char*)Data[2]);
+			String^ CommandName = gcnew String((const char*)Data[3]);
+
+			String^ ConsoleMessage = "[" + Offset.ToString("x4") + "]\t\t Encountered OBSE script error - '" + ErrorMessage + "'.";
+			if (CommandName != "")
+				ConsoleMessage += " Command - '" + CommandName + "'";
+
+			PrintToConsole(ConsoleMessage);				
+			GetExecutingContext()->UpdateContext(Line, Offset);
+			if (GetState() == kDebuggerState_DebugTillNextError)
+			{
+				SetState(kDebuggerState_Break);
+			}
 			break;
 		}
 	}

@@ -5,8 +5,10 @@
 IDebugLog					gLog("RuntimeDebugger.log");
 
 PluginHandle				g_pluginHandle = kPluginHandle_Invalid;
+OBSEMessagingInterface*		g_msgIntfc = NULL;
 
-extern "C" {
+extern "C"
+{
 
 bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 {
@@ -49,6 +51,9 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	{
 		PatchGameInitialization();
 		PatchScriptRunnerMethods();
+
+		g_msgIntfc = (OBSEMessagingInterface*)obse->QueryInterface(kInterface_Messaging);
+		g_msgIntfc->RegisterListener(g_pluginHandle, "OBSE", OBSEMessageHandler);
 	}
 
 	gLog.Outdent();

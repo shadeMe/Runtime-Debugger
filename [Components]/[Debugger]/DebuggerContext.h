@@ -18,6 +18,7 @@ public ref class DebuggerContext
 		ToolStripButton^						ToolbarShowGlobals;
 	ListView^								Locals;
 	ListView^								Globals;
+		TextBox^								ValueEditBox;
 
 	Script*									WorkingScript;
 	ScriptEventList*						WorkingEventList;
@@ -41,6 +42,9 @@ public ref class DebuggerContext
 
 	void									ToolbarShowLocals_Click(Object^ Sender, EventArgs^ E);
 	void									ToolbarShowGlobals_Click(Object^ Sender, EventArgs^ E);
+	void									AutosList_DoubleClick(Object^ Sender, EventArgs^ E);
+		void									ValueEditBox_LostFocus(Object^ Sender, EventArgs^ E);
+		void									ValueEditBox_KeyDown(Object^ Sender, KeyEventArgs^ E);
 
 	void									ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, ListViewGroup^ GlobalFormGroup);
 

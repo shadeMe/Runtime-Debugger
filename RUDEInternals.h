@@ -43,3 +43,5 @@ public:
 };
 
 extern TESGame**		g_TESGame;
+
+void OBSEMessageHandler(OBSEMessagingInterface::Message* Msg);

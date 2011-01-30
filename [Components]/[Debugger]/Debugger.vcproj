@@ -280,6 +280,14 @@
 			Name="Utilities"
 			>
 			<File
+				RelativePath="..\..\[Common]\ListViewUtilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\[Common]\ListViewUtilities.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\[Common]\MiscUtilities.cpp"
 				>
 			</File>

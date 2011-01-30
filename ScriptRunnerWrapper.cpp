@@ -6,7 +6,6 @@ const UInt32				kScriptRunner_RunScript = 0x00517810;
 const UInt32				kScriptRunner_LookupCommandByOpcode = 0x004FCA30;
 const UInt32				kCommandTable_ScriptBlocks = 0x00B0AF48;
 
-
 MemHdlr						kRerouteDebugMessages						(0x00A3DA08 + 4, (UInt32)0, 0, 0);
 
 MemHdlr						kScriptRunnerNewInstance					(0x005174D4, ScriptRunnerNewInstanceHook, 0, 0);
@@ -234,7 +233,7 @@ void __declspec(naked) ScriptRunnerCommandHandlerCalledHook(void)
 {
 	__asm
 	{
-		mov		eax, [esp + 0x75C]			// retn addr
+		mov		eax, [esp + 0x75C]
 		cmp		eax, 0x00517552
 		jnz		EXIT
 
@@ -266,13 +265,13 @@ void __declspec(naked) ScriptRunnerCommandHandlerExecutedHook(void)
 		call    ecx
 		add     esp, 0x20
 
-		mov		ecx, [esp + 0x778]			// retn addr
+		mov		ecx, [esp + 0x75C]
 		cmp		ecx, 0x00517552
 		jnz		EXIT
 
 		mov		ecx, [esp + 0x77C]
 		mov		CurrentLineBuffer, ecx
-		mov		ecx, [esp + 0x14]			// ### check
+		mov		ecx, [esp + 0x14]
 		sub		ecx, 4
 		mov		CurrentOffsetBuffer, ecx
 

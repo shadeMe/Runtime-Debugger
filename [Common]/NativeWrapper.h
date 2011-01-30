@@ -11,8 +11,8 @@ public:
 	[DllImport("RuntimeDebugger.dll")] 
 	static void											_D_PRINT(const char* Message);
 	[DllImport("RuntimeDebugger.dll")] 
-	static bool											GetScriptDataForForm(UInt32 FormID, Script** ResultScript, ScriptEventList** ResultEventList);
-
+	static bool											GetScriptDataForForm(bool* Result, UInt32 FormID, Script** ResultScript, ScriptEventList** ResultEventList);
+														// ### function result always returns false when crossing the DLL boundary
 
 	[DllImport("user32.dll")]
 	static bool											LockWindowUpdate(IntPtr hWndLock);

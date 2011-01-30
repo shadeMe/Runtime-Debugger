@@ -10,7 +10,7 @@ __declspec(dllexport) void _D_PRINT(const char* Message)
 	DebugPrint(Message);
 }
 
-__declspec(dllexport) bool GetScriptDataForForm(UInt32 FormID, Script** ResultScript, ScriptEventList** ResultEventList)
+__declspec(dllexport) bool GetScriptDataForForm(bool* OperationResult, UInt32 FormID, Script** ResultScript, ScriptEventList** ResultEventList)
 {
 	bool Result = false;
 
@@ -19,17 +19,17 @@ __declspec(dllexport) bool GetScriptDataForForm(UInt32 FormID, Script** ResultSc
 		TESForm* Form = LookupFormByID(FormID);
 		if (Form)
 		{
-			if (Form->IsReference() == 0)		// if not a ref, a quest
+			TESQuest* Quest = OBLIVION_CAST(Form, TESForm, TESQuest);
+			TESObjectREFR* Ref = OBLIVION_CAST(Form, TESForm, TESObjectREFR);
+
+			if (Quest)
 			{
-				TESQuest* Quest = OBLIVION_CAST(Form, TESForm, TESQuest);
 				*ResultScript = Quest->scriptable.script;
 				*ResultEventList = Quest->scriptEventList;
 				Result = true;
 			}
-			else
+			else if (Ref)
 			{
-				TESObjectREFR* Ref = OBLIVION_CAST(Form, TESForm, TESObjectREFR);
-
 				BSExtraData* xData = Ref->baseExtraList.GetByType(kExtraData_Script);
 				if (xData)
 				{
@@ -38,11 +38,11 @@ __declspec(dllexport) bool GetScriptDataForForm(UInt32 FormID, Script** ResultSc
 					*ResultEventList = xScript->eventList;
 					Result = true;
 				}
-
 			}
 		}
 	}
 
+	*OperationResult = Result;
 	return Result;
 }
 
