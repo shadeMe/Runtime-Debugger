@@ -18,8 +18,9 @@ MemHdlr						kScriptRunnerCommandHandlerExecuted			(0x005172C5, ScriptRunnerComm
 MemHdlr						kScriptRunnerLineExecutionFailed			(0x00517576, ScriptRunnerLineExecutionFailedHook, 0, 0);
 MemHdlr						kScriptRunnerExecutionComplete				(0x00517617, ScriptRunnerExecutionCompleteHook, 0, 0);
 
-static UInt32				CurrentLineBuffer = 0;
 static UInt32				CurrentOffsetBuffer = 0;
+
+bool						DebugBreakInvocationState = true;
 
 void PatchScriptRunnerMethods(void)
 {
@@ -226,7 +227,6 @@ void __stdcall HandleScriptRunnerEvent_CommandHandlerCalledHook(UInt32 Line, UIn
 	Data[2] = (UInt32)Command->longName;
 	
 	SendMessagePingback(kDebuggerMessage_CommandHandlerCalled, Data);
-	CurrentLineBuffer = Line;
 	CurrentOffsetBuffer = Offset - 4;
 }
 void __declspec(naked) ScriptRunnerCommandHandlerCalledHook(void)
@@ -269,8 +269,6 @@ void __declspec(naked) ScriptRunnerCommandHandlerExecutedHook(void)
 		cmp		ecx, 0x00517552
 		jnz		EXIT
 
-		mov		ecx, [esp + 0x77C]
-		mov		CurrentLineBuffer, ecx
 		mov		ecx, [esp + 0x14]
 		sub		ecx, 4
 		mov		CurrentOffsetBuffer, ecx
@@ -312,7 +310,7 @@ void __stdcall HandleScriptRunnerEvent_ExecutionComplete(UInt32 Result)
 {
 	UInt32* Data = new UInt32[1];
 
-	Data[0] = (UInt32)Result;
+	Data[0] = (UInt32)LOWORD(Result);
 	
 	SendMessagePingback(kDebuggerMessage_ExecutionComplete, Data);
 }
@@ -320,35 +318,35 @@ void __declspec(naked) ScriptRunnerExecutionCompleteHook(void)
 {
 	__asm
 	{
-		pushad									// ### recheck - doesn't return the correct result
-		test	al, al
-		jz		FAIL
-		push	1
-	CALLEVENT:
+		pushad
+		push	eax
 		call	HandleScriptRunnerEvent_ExecutionComplete
 		popad
 
 		pop     ecx
 		mov		ecx, 0x0051761F
 		jmp		ecx
-	FAIL:
-		push	0
-		jmp		CALLEVENT
 	}
 }
 
 bool Cmd_DebugBreak_Execute(COMMAND_ARGS)
 {
-	*result = 1;
+	if (DebugBreakInvocationState)
+	{
+		*result = 1;
 
-	UInt32* Data = new UInt32[4];
+		UInt32* Data = new UInt32[4];
 
-	Data[0] = (UInt32)CurrentLineBuffer;
-	Data[1] = (UInt32)*opcodeOffsetPtr - 4;		// scriptname token's opcode is parsed before the first hook
-	Data[2] = (UInt32)scriptObj;
-	Data[3] = (UInt32)eventList;
-	
-	SendMessagePingback(kDebuggerMessage_DebugBreakCalled, Data);
+		Data[0] = (UInt32)0;
+		Data[1] = (UInt32)*opcodeOffsetPtr - 4;		// scriptname token's opcode is parsed before the first hook
+		Data[2] = (UInt32)scriptObj;
+		Data[3] = (UInt32)eventList;
+		
+		SendMessagePingback(kDebuggerMessage_DebugBreakCalled, Data);
+	}
+	else
+		*result = 0;
+
 	return true;
 }
 
@@ -363,4 +361,24 @@ CommandInfo kCommandInfo_DebugBreak =
 	NULL,	// no param table
 
 	HANDLER(Cmd_DebugBreak_Execute)
+};
+
+bool Cmd_ToggleDebugBreaking_Execute(COMMAND_ARGS)
+{
+	*result = DebugBreakInvocationState = (!DebugBreakInvocationState);
+
+	return true;
+}
+
+CommandInfo kCommandInfo_ToggleDebugBreaking =
+{
+	"ToggleDebugBreaking",
+	"",
+	0,
+	"Toggles the invocation of the debugger at calls to DebugBreak",
+	0,		// requires parent obj
+	0,		// doesn't have params
+	NULL,	// no param table
+
+	HANDLER(Cmd_ToggleDebugBreaking_Execute)
 };

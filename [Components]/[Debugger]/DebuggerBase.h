@@ -14,6 +14,7 @@ public ref class DebuggerBase
 				ToolStrip^							DebuggerToolbar;
 					ToolStripButton^					ToolbarQuitGame;
 					ToolStripButton^					ToolbarResumeExecution;
+					ToolStripButton^					ToolbarToggleDebugBreak;
 					ToolStripButton^					ToolbarExecuteTillNextBreakpoint;
 					ToolStripButton^					ToolbarExecuteTillNextLine;
 					ToolStripButton^					ToolbarExecuteTillNextBlock;
@@ -31,6 +32,7 @@ public ref class DebuggerBase
 
 	void								ToolbarQuitGame_Click(Object^ Sender, EventArgs^ E);
 	void								ToolbarResumeExecution_Click(Object^ Sender, EventArgs^ E);
+	void								ToolbarToggleDebugBreak_Click(Object^ Sender, EventArgs^ E);
 	void								ToolbarExecuteButtons_Click(Object^ Sender, EventArgs^ E);
 	void								DebuggerBox_Cancel(Object^ Sender, FormClosingEventArgs^ E);
 	void								CallStackList_ItemActivate(Object^ Sender, EventArgs^ E);

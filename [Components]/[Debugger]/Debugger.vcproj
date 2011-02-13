@@ -263,6 +263,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Images\switch_48.png"
+					>
+				</File>
+				<File
 					RelativePath=".\Images\ToolBarQuitGame.png"
 					>
 				</File>

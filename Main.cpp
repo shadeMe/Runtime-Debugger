@@ -13,7 +13,7 @@ extern "C"
 bool OBSEPlugin_Query(const OBSEInterface * obse, PluginInfo * info)
 {
 	info->infoVersion = PluginInfo::kInfoVersion;
-	info->name = "RuntimeDebugger";
+	info->name = "RUDE";
 	info->version = 1;
 
 	if(!obse->isEditor)
@@ -44,8 +44,10 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 		return false;
 
 	
-	obse->SetOpcodeBase(0x2900);						// ### request a proper range
+	obse->SetOpcodeBase(0x2710);						// 0x2710 - 0x272F
 	obse->RegisterCommand(&kCommandInfo_DebugBreak);
+	obse->RegisterCommand(&kCommandInfo_ToggleDebugBreaking);
+	
 
 	if (!obse->isEditor)
 	{

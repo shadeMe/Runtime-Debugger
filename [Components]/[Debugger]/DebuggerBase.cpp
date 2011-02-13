@@ -11,6 +11,7 @@ DebuggerBase::DebuggerBase()
 	DebuggerToolbar = (gcnew ToolStrip());
 	ToolbarQuitGame = gcnew ToolStripButton();
 	ToolbarResumeExecution = gcnew ToolStripButton();
+	ToolbarToggleDebugBreak = gcnew ToolStripButton();
 	ToolbarExecuteTillNextBreakpoint = gcnew ToolStripButton();
 	ToolbarExecuteTillNextLine = gcnew ToolStripButton();
 	ToolbarExecuteTillNextBlock = gcnew ToolStripButton();
@@ -24,6 +25,7 @@ DebuggerBase::DebuggerBase()
 
 	SetupControlImage(ToolbarQuitGame);
 	SetupControlImage(ToolbarResumeExecution);
+	SetupControlImage(ToolbarToggleDebugBreak);
 	SetupControlImage(ToolbarExecuteTillNextBreakpoint);
 	SetupControlImage(ToolbarExecuteTillNextLine);
 	SetupControlImage(ToolbarExecuteTillNextBlock);
@@ -80,9 +82,16 @@ DebuggerBase::DebuggerBase()
 	ToolbarQuitGame->ToolTipText = L"Quit Runtime";
 	ToolbarQuitGame->AutoSize = true;
 	ToolbarQuitGame->Click += gcnew EventHandler(this, &DebuggerBase::ToolbarQuitGame_Click);
-	
+
+	ToolbarToggleDebugBreak->Text = L"Toggle Debug Breaking";
+	ToolbarToggleDebugBreak->ToolTipText = L"Toggle Debug Breaking";
+	ToolbarToggleDebugBreak->AutoSize = true;
+	ToolbarToggleDebugBreak->Click += gcnew EventHandler(this, &DebuggerBase::ToolbarToggleDebugBreak_Click);
+
 	DebuggerToolbar->Items->Add(ToolbarQuitGame);
 	DebuggerToolbar->Items->Add(ToolbarResumeExecution);
+	DebuggerToolbar->Items->Add(ToolbarToggleDebugBreak);
+	
 	DebuggerToolbar->Items->Add(ToolbarExecuteTillNextBreakpoint);
 	DebuggerToolbar->Items->Add(ToolbarExecuteTillNextLine);
 	DebuggerToolbar->Items->Add(ToolbarExecuteTillNextBlock);
@@ -210,7 +219,6 @@ void DebuggerBase::Deinitialize()
 
 void DebuggerBase::Show()
 {
-//	NativeWrapper::ReleaseCapture();
 	DebuggerBox->ShowDialog();
 }
 
@@ -227,15 +235,22 @@ void DebuggerBase::SetState(UInt8 State)
 {
 	DebuggerContext^ CurrentContext = GetExecutingContext();
 	if (CurrentContext)
+	{
 		CurrentContext->SetState(State);
 
-	if (State == kDebuggerState_Break)
-		Show();
+		if (State == kDebuggerState_Break)
+		{
+			for each (DebuggerContext^ Itr in CallStack)
+				Itr->UpdateUI();
+
+			Show();
+		}
+	}
 }
 
 void DebuggerBase::DebugScript(Script* WorkingScript, ScriptEventList* EventList, UInt32 CurrentLine, UInt16 CurrentOffset)
 {
-	CallStack->Push(gcnew DebuggerContext(WorkingScript, EventList, gcnew StandardErrorOutput(this, &DebuggerBase::PrintToConsole), CurrentLine, CurrentOffset));
+	CallStack->Push(gcnew DebuggerContext(WorkingScript, EventList, gcnew StandardErrorOutput(this, &DebuggerBase::PrintToConsole), CurrentOffset));
 	UpdateCallStackList();
 
 	DebuggerContext^% CurrentContext = GetExecutingContext();
@@ -262,11 +277,11 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 				Initialize();
 			}
 			else
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 
 			if (GetExecutingContext()->GetEventList() != WorkingEventList)
 			{
-				MessageBox::Show("ASSERTION FAILURE!");
+				MessageBox::Show("Assertion Failure! DebugBreak called in untracked script.");
 				Debugger::Break();
 			}
 
@@ -287,6 +302,8 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 				CurrentContext->SetState(kDebuggerState_Break);
 				SetState(kDebuggerState_Break);
 			}
+			else
+				SetState(CurrentContext->GetState());
 			break;
 		}
 	case kDebuggerMessage_NewLineExecutionStart:
@@ -299,7 +316,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 			{
 				if (CurrentContext->GetIsOffsetBreakPoint(Offset) && GetState() == kDebuggerState_DebugTillNextBreakpoint)
 					PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Hit custom breakpoint...");
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 				SetState(kDebuggerState_Break);
 			}
 			break;
@@ -312,7 +329,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 			PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Reference evaluation failed - Current script blacklisted!");
 			if (GetState() == kDebuggerState_DebugTillNextError)
 			{
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 				SetState(kDebuggerState_Break);
 			}
 			break;
@@ -325,7 +342,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 			PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Hit Return command");
 			if (GetState() == kDebuggerState_DebugTillReturn)
 			{
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 				SetState(kDebuggerState_Break);
 			}
 			break;
@@ -339,7 +356,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 			PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Entering script block '" + gcnew String(CommandName) + "'...");	
 			if (GetState() == kDebuggerState_DebugTillNextBlock)
 			{
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 				SetState(kDebuggerState_Break);
 			}
 			break;
@@ -351,7 +368,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 
 			const char* CommandName = (const char*)Data[2];
 			PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Executing script command '" + gcnew String(CommandName) + "'");				
-			GetExecutingContext()->UpdateContext(Line, Offset);
+			GetExecutingContext()->UpdateExecutingOffset(Offset);;
 			if (GetState() == kDebuggerState_DebugTillNextCommand)
 			{
 				SetState(kDebuggerState_Break);
@@ -366,7 +383,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 			PrintToConsole("[" + Offset.ToString("x4") + "]\t\t Bytecode evaluation failed!");	
 			if (GetState() == kDebuggerState_DebugTillNextError)
 			{
-				GetExecutingContext()->UpdateContext(Line, Offset);
+				GetExecutingContext()->UpdateExecutingOffset(Offset);;
 				SetState(kDebuggerState_Break);
 			}
 			break;
@@ -402,7 +419,7 @@ UInt8 DebuggerBase::HandleScriptRunnerCallback(DebuggerMessage Message, UInt32* 
 				ConsoleMessage += " Command - '" + CommandName + "'";
 
 			PrintToConsole(ConsoleMessage);				
-			GetExecutingContext()->UpdateContext(Line, Offset);
+			GetExecutingContext()->UpdateExecutingOffset(Offset);;
 			if (GetState() == kDebuggerState_DebugTillNextError)
 			{
 				SetState(kDebuggerState_Break);
@@ -434,6 +451,14 @@ void DebuggerBase::ToolbarResumeExecution_Click(Object^ Sender, EventArgs^ E)
 
 	UpdateCallStackList();
 	Deinitialize();
+}
+
+void DebuggerBase::ToolbarToggleDebugBreak_Click(Object^ Sender, EventArgs^ E)
+{
+	if (NativeWrapper::ToggleDebugBreakInvocationState())
+		MessageBox::Show("Debug breaking toggled on.", "RUDE", MessageBoxButtons::OK, MessageBoxIcon::Information);
+	else
+		MessageBox::Show("Debug breaking toggled off.", "RUDE", MessageBoxButtons::OK, MessageBoxIcon::Information);
 }
 
 void DebuggerBase::ToolbarExecuteButtons_Click(Object^ Sender, EventArgs^ E)

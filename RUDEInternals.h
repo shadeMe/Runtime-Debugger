@@ -18,6 +18,7 @@ void ScriptLoadTextHook(void);
 extern UInt32		kTESFile_GetChunkData;
 
 extern CommandInfo	kCommandInfo_DebugBreak;
+extern CommandInfo	kCommandInfo_ToggleDebugBreaking;
 
 // 28
 class TESGame

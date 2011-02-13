@@ -8,6 +8,8 @@ extern const UInt32		kScriptRunner_RunScript;
 extern const UInt32		kScriptRunner_LookupCommandByOpcode;
 extern const UInt32		kCommandTable_ScriptBlocks;
 
+extern bool				DebugBreakInvocationState;
+
 void PatchScriptRunnerMethods(void);
 
 extern MemHdlr		kRerouteDebugMessages;

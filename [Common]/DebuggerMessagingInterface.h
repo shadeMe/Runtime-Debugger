@@ -29,7 +29,7 @@ enum DebuggerMessage
 	kDebuggerMessage_OBSEScriptErrorEncountered					//		error message, command name
 };
 
-#ifndef OBLIVION		// ### figure out how to get the native sdk compile PROPERLY with clr projects
+#ifndef OBLIVION
 	class Script;
 
 	class BaseFormComponent

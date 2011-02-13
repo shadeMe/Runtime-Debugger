@@ -3,7 +3,7 @@
 #include "[Common]\NativeWrapper.h"
 #include "[Common]\ListViewUtilities.h"
 
-DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* WorkingEventList, StandardErrorOutput^ ErrorOutput, UInt32 CurrentLine, UInt16 CurrentOffset)
+DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* WorkingEventList, StandardErrorOutput^ ErrorOutput, UInt16 CurrentOffset)
 {
 	TextViewer = gcnew ScriptDebuggerRTB(6, gcnew Font("Consolas", 9.75, FontStyle::Regular), Color::Black, Color::Gray, Color::Firebrick, Color::Yellow, Color::RosyBrown);
 	
@@ -122,9 +122,8 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	this->WorkingEventList = WorkingEventList;
 	this->ErrorOutput = ErrorOutput;
 
-	this->CurrentLine = CurrentLine;
 	this->CurrentOffset = CurrentOffset;
-	State = gcnew ContextState();
+	State = kDebuggerState_Invalid;
 
 	TextViewer->GetTextField()->Text = gcnew String(WorkingScript->text);
 	TextViewer->GetTextField()->ReadOnly = true;
@@ -132,7 +131,7 @@ DebuggerContext::DebuggerContext(Script* WorkingScript, ScriptEventList* Working
 	if (TextViewer->CalculateLineOffsetsForTextField((UInt32)WorkingScript->data, WorkingScript->info.dataLength) == false)
 		ErrorOutput("Couldn't calculate offsets for script!");
 
-	UpdateContext(CurrentLine, CurrentOffset);
+	UpdateUI();
 	Locals->BringToFront();
 }
 
@@ -141,13 +140,9 @@ String^ DebuggerContext::DescribeWorkingScript()
 	return "Script " + WorkingScript->refID.ToString("x8") + " ~ " + "T[" + WorkingScript->info.type + "] ; V[" + WorkingScript->info.varCount + "] ; R[" + WorkingScript->info.numRefs + "]";
 }
 
-void DebuggerContext::UpdateContext(UInt32 CurrentLine, UInt16 CurrentOffset)
+void DebuggerContext::UpdateExecutingOffset(UInt16 CurrentOffset)
 {
-	this->CurrentLine = CurrentLine;
 	this->CurrentOffset = CurrentOffset;
-
-	UpdateCurrentOffset(CurrentOffset);
-	UpdateAutos();
 }
 
 void DebuggerContext::ParseEventListForEnumeration(Script* SourceScript, ScriptEventList* SourceEventList, ListView^% DestinationListView, ListViewGroup^ GlobalFormGroup)
@@ -167,8 +162,9 @@ void DebuggerContext::ParseEventListForEnumeration(Script* SourceScript, ScriptE
 		{
 			Item->Text = gcnew String(VarInfo->name.m_data);
 
+			UInt32 RefData = *((UInt32*)&Itr->var->data);
 			if (RefInfo)
-				Item->SubItems->Add(((UInt32)Itr->var->data).ToString("x8"));
+				Item->SubItems->Add(RefData.ToString("x8"));
 			else
 				Item->SubItems->Add(Itr->var->data.ToString());
 
@@ -267,22 +263,12 @@ void DebuggerContext::ToolbarShowGlobals_Click(Object^ Sender, EventArgs^ E)
 
 UInt8 DebuggerContext::GetState()
 {
-	UInt8 Result = kDebuggerState_Invalid;
-
-//	Monitor::Enter(State);
-	Result = State->Get();
-//	Monitor::PulseAll(State);
-//	Monitor::Exit(State);
-
-	return Result;
+	return State;
 }
 
 void DebuggerContext::SetState(UInt8 State)
 {
-//	Monitor::Enter(this->State);
-	this->State->Set(State);
-//	Monitor::PulseAll(this->State);
-//	Monitor::Exit(this->State);
+	this->State = State;
 }
 
 void DebuggerContext::AutosList_DoubleClick(Object^ Sender, EventArgs^ E)

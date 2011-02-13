@@ -1,5 +1,6 @@
 #include "Exports.h"
 #include "RUDEInternals.h"
+#include "ScriptRunnerWrapper.h"
 #include "obse/GameExtraData.h"
 
 extern "C"
@@ -44,6 +45,11 @@ __declspec(dllexport) bool GetScriptDataForForm(bool* OperationResult, UInt32 Fo
 
 	*OperationResult = Result;
 	return Result;
+}
+
+__declspec(dllexport) bool ToggleDebugBreakInvocationState()
+{
+	return DebugBreakInvocationState = (!DebugBreakInvocationState);
 }
 
 }

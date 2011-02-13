@@ -13,6 +13,8 @@ public:
 	[DllImport("RuntimeDebugger.dll")] 
 	static bool											GetScriptDataForForm(bool* Result, UInt32 FormID, Script** ResultScript, ScriptEventList** ResultEventList);
 														// ### function result always returns false when crossing the DLL boundary
+	[DllImport("RuntimeDebugger.dll")] 
+	static bool											ToggleDebugBreakInvocationState();
 
 	[DllImport("user32.dll")]
 	static bool											LockWindowUpdate(IntPtr hWndLock);
