@@ -40,9 +40,10 @@ bool OBSEPlugin_Load(const OBSEInterface * obse)
 	DebugPrint("RuntimeDebugger Initializing...");
 	gLog.Indent();
 
+	WaitUntilDebuggerAttached();
+
 	if (!CLIWrapper::Import(obse))
 		return false;
-
 	
 	obse->SetOpcodeBase(0x2710);						// 0x2710 - 0x272F
 	obse->RegisterCommand(&kCommandInfo_DebugBreak);

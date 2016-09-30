@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="OBSE">
+      <UniqueIdentifier>{6fd1c008-77e4-45e6-be0e-225d5d697c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{14dba5dd-ce52-4957-be7a-d25fe18744f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{06822508-46f6-48e5-85a6-c7522f0a4075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{6daa8cec-7cd9-4213-930f-e82e7adf834b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers">
+      <UniqueIdentifier>{e707f7a7-3c4e-48a5-828d-d8efc4a4ce0d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Dllmain.c">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameActorValues.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameAPI.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameBSExtraData.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameData.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameExtraData.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameForms.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameObjects.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameTasks.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\GameTypes.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\NiAPI.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\NiNodes.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\NiRTTI.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\NiTypes.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse_common\SafeWrite.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\Script.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obse\obse\Utilities.cpp">
+      <Filter>OBSE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\[Libraries]\MemoryHandler\MemoryHandler.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilityBox.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="[Common]\CLIWrapper.cpp">
+      <Filter>Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Exports.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="RUDEInternals.cpp" />
+    <ClCompile Include="ScriptRunnerWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Exports.def">
+      <Filter>OBSE</Filter>
+    </None>
+    <None Include="..\obse\obse\GameRTTI_1_1.inl">
+      <Filter>OBSE</Filter>
+    </None>
+    <None Include="..\obse\obse\GameRTTI_1_2.inl">
+      <Filter>OBSE</Filter>
+    </None>
+    <None Include="..\obse\obse\GameRTTI_1_2_416.inl">
+      <Filter>OBSE</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\obse\obse\GameActorValues.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameAPI.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameBSExtraData.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameData.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameExtraData.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameForms.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameObjects.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameTasks.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\GameTypes.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\NiAPI.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\NiNodes.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\NiRTTI.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\NiTypes.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\ParamInfos.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\PluginAPI.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse_common\SafeWrite.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\Script.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obse\obse\Utilities.h">
+      <Filter>OBSE</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\[Libraries]\MemoryHandler\MemoryHandler.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\[Libraries]\SME_Prefix.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityBox.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="[Common]\DebuggerMessagingInterface.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="[Common]\CLIWrapper.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Exports.h" />
+    <ClInclude Include="RUDEInternals.h" />
+    <ClInclude Include="ScriptRunnerWrapper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RuntimeDebugger.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

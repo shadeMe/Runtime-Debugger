@@ -2,3 +2,6 @@ To Do
 =====
 > Use the CSE preprocessor to preprocess script text
 > Check if the correct opcode is being passed in the block handler hook
+> Watch variables
+> Show the debugger window as a child of the main game window
+	> Restore to last known position on reinit

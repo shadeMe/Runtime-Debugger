@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{321a4259-e346-4cca-89f4-878f64b08911}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Images">
+      <UniqueIdentifier>{3b2a096b-0493-46ee-aa7c-d4f99ab2ab6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers">
+      <UniqueIdentifier>{ae404343-9eb2-4f56-b39b-e38f0c95e92f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{18cc5927-3dce-48b4-be76-28bf96e407d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{53e424e8-f628-4be5-a67b-4d7e8d1c4ce7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{188daeee-04bc-4b5b-8c1a-cf83f38bfb44}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Debugger.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Images.resx">
+      <Filter>Resources</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\[Common]\Includes.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\[Common]\NativeWrapper.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\[Common]\ListViewUtilities.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\[Common]\MiscUtilities.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\[Common]\DebuggerMessagingInterface.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteCodeParser.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberedRichTextBox.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptDebuggerRTB.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DebuggerBase.h" />
+    <ClInclude Include="DebuggerContext.h" />
+    <ClInclude Include="Exports.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="..\..\[Common]\Prefix.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\BringForwardHS.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\Go.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeBlock.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeBreakpoint.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeCommand.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeError.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeLine.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeReturn.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ResumeScript.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\SendToBackHS.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\switch_48.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+    <None Include="Images\ToolBarQuitGame.png">
+      <Filter>Resources\Images</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\[Common]\ListViewUtilities.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\[Common]\MiscUtilities.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="ByteCodeParser.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberedRichTextBox.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptDebuggerRTB.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuggerBase.cpp" />
+    <ClCompile Include="DebuggerContext.cpp" />
+    <ClCompile Include="Exports.cpp" />
+  </ItemGroup>
+</Project>
